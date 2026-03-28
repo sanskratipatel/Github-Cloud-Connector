@@ -3,27 +3,28 @@
 # Install with: pip install -r requirements.txt
 
 # Core Framework
-fastapi==0.111.0
-uvicorn[standard]==0.29.0
+fastapi>=0.111.0
+uvicorn[standard]>=0.29.0
 
 # HTTP Client (async)
-httpx==0.27.0
+httpx>=0.27.0
 
 # Database
-sqlalchemy==2.0.30
-aiosqlite==0.20.0
+sqlalchemy>=2.0.30
+aiosqlite>=0.20.0
 
 # Settings / Env
-pydantic==2.7.1
-pydantic-settings==2.3.0
-python-dotenv==1.0.1
+# NOTE: No exact pin — lets pip pick a version with pre-built wheels for the host Python
+pydantic>=2.7.1
+pydantic-settings>=2.3.0
+python-dotenv>=1.0.1
 
 # Auth / Security
 python-jose[cryptography]==3.3.0
-itsdangerous==2.2.0
+itsdangerous>=2.2.0
 
 # Logging
-loguru==0.7.2
+loguru>=0.7.2
 
 # Utilities
-python-multipart==0.0.9
+python-multipart>=0.0.9
