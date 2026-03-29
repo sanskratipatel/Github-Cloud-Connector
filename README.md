@@ -13,7 +13,7 @@ Supports **Personal Access Token (PAT)** and **OAuth 2.0** authentication, SQLit
 - **Pagination** on all list endpoints
 - **Structured error handling** — rate limits, 404s, auth failures
 - **Request logging** with Loguru (console + rotating file)
-- **Interactive API docs** at `/docs` (Swagger UI) and `/redoc`
+- **Interactive API docs** at `/docs` (Swagger UI)
 
 ---
 
@@ -108,20 +108,21 @@ GITHUB_CLIENT_SECRET=your_client_secret
 GITHUB_REDIRECT_URI=http://localhost:8000/auth/callback
 
 # App
-SECRET_KEY=your-random-secret-key
+SECRET_KEY=your-random-secret-key (generate it using :- 
+python3 -c "import secrets; print(secrets.token_hex(32))")
 DEBUG=false
 ```
 
 **Creating a GitHub PAT:**
-1. Go to [https://github.com/settings/tokens](https://github.com/settings/tokens)
+1. Go to (https://github.com/settings/tokens)
 2. Click **Generate new token (classic)**
 3. Select scopes: `repo`, `read:user`, `read:org`
 4. Copy the token into `.env`
 
 **Creating a GitHub OAuth App (optional):**
-1. Go to [https://github.com/settings/developers](https://github.com/settings/developers)
+1. Go to [https://github.com/settings/developers]
 2. Click **New OAuth App**
-3. Set **Authorization callback URL** to `http://localhost:8000/auth/callback`
+3. Set **Authorization callback URL** to `{Base_URL}/auth/callback`
 4. Copy Client ID and Secret into `.env`
 
 ### 5. Run the server
@@ -280,7 +281,7 @@ curl -X POST "http://localhost:8000/create-pr" \
    - `GITHUB_TOKEN`
    - `GITHUB_CLIENT_ID` *(if using OAuth)*
    - `GITHUB_CLIENT_SECRET` *(if using OAuth)*
-   - `GITHUB_REDIRECT_URI` → `https://your-app.onrender.com/auth/callback`
+   - `GITHUB_REDIRECT_URI` → `{BASE_URL}/auth/callback`
    - `SECRET_KEY` → a random string
    - `DEBUG` → `false`
 

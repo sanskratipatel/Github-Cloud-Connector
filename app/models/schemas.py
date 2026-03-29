@@ -40,8 +40,6 @@ class TokenValidation(BaseModel):
     message: str
 
 
-# ── Repository ────────────────────────────────────────────────────────────────
-
 class RepoOwner(BaseModel):
     login: str
     avatar_url: str
@@ -103,7 +101,7 @@ class CreateIssueRequest(BaseModel):
     assignees: list[str] = Field(default_factory=list, description="GitHub usernames to assign")
 
 
-# ── Commit ────────────────────────────────────────────────────────────────────
+
 
 class CommitAuthor(BaseModel):
     name: str
@@ -124,7 +122,6 @@ class Commit(BaseModel):
     author: IssueUser | None = None
 
 
-# ── Pull Request ──────────────────────────────────────────────────────────────
 
 class PRBranch(BaseModel):
     label: str

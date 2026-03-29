@@ -31,8 +31,8 @@ def _handle_response(response: httpx.Response, action: str) -> Any:
     """Translate every non-2xx GitHub response into a friendly GitHubAPIError."""
     if response.status_code == 401:
         raise GitHubAPIError(
-            "Authentication failed. Your GitHub token is invalid or has expired. "
-            "Please check the GITHUB_TOKEN in your .env file or re-authenticate via /auth/login.",
+            "Your GitHub token is invalid or has expired. "
+            "Please check the GITHUB_TOKEN by /auth/login.",
             401,
         )
     if response.status_code == 403:
@@ -45,20 +45,18 @@ def _handle_response(response: httpx.Response, action: str) -> Any:
                 429,
             )
         raise GitHubAPIError(
-            "Access denied. Your token does not have permission to perform this action. "
-            "Make sure your PAT includes the 'repo', 'read:user', and 'read:org' scopes.",
+            f"Access denied. You does not have permission to perform this action. "
+            ,
             403,
         )
     if response.status_code == 404:
         raise GitHubAPIError(
-            f"Resource not found while trying to {action}. "
-            "Double-check the owner and repository name — they are case-sensitive.",
+            f"Resource not found while trying to {action}. ",
             404,
         )
     if response.status_code == 409:
         raise GitHubAPIError(
-            f"Conflict detected while trying to {action}. "
-            "The resource may already exist or there is a merge conflict.",
+            f"The resource may already exist or there is a merge conflict.",
             409,
         )
     if response.status_code == 422:
@@ -80,8 +78,7 @@ def _handle_response(response: httpx.Response, action: str) -> Any:
         )
     if not response.is_success:
         raise GitHubAPIError(
-            f"GitHub returned an unexpected error (HTTP {response.status_code}) "
-            f"while trying to {action}. Please try again later.",
+            f"GitHub returned unexpected error {response.status_code}",
             response.status_code,
             detail=response.text[:500],
         )
@@ -89,17 +86,16 @@ def _handle_response(response: httpx.Response, action: str) -> Any:
 
 
 def _wrap_network_error(exc: Exception, action: str) -> GitHubAPIError:
-    """Convert httpx network exceptions into friendly GitHubAPIErrors."""
     if isinstance(exc, httpx.TimeoutException):
         return GitHubAPIError(
-            f"The request to GitHub timed out while trying to {action}. "
-            "GitHub may be experiencing issues — please try again in a moment.",
+            f"GitHub timed out for this  {action}. "
+            "Please try again after some time",
             504,
         )
     if isinstance(exc, httpx.ConnectError):
         return GitHubAPIError(
-            f"Could not connect to GitHub while trying to {action}. "
-            "Check your internet connection and try again.",
+            f"Could not connect to GitHub for this {action}. "
+            "try again.",
             503,
         )
     if isinstance(exc, httpx.RequestError):
@@ -113,7 +109,6 @@ def _wrap_network_error(exc: Exception, action: str) -> GitHubAPIError:
     )
 
 
-# ── Token Validation ──────────────────────────────────────────────────────────
 
 async def validate_token(token: str) -> dict[str, Any]:
     logger.debug("Validating GitHub token")
@@ -144,7 +139,7 @@ async def validate_token(token: str) -> dict[str, Any]:
             "valid": False,
             "username": None,
             "scopes": [],
-            "message": "Invalid token. Please generate a new PAT at https://github.com/settings/tokens",
+            "message": "Invalid token. Please generate Token with appropriate scopes and try again.",
         }
     if response.is_success:
         data = response.json()
@@ -164,8 +159,6 @@ async def validate_token(token: str) -> dict[str, Any]:
         "message": f"Token validation returned HTTP {response.status_code}",
     }
 
-
-# ── Repositories ──────────────────────────────────────────────────────────────
 
 async def fetch_user_repos(
     token: str, username: str | None = None, page: int = 1, per_page: int = 30
@@ -198,7 +191,7 @@ async def fetch_user_repos(
 
     result = _handle_response(response, action)
     cache.set(cache_key, result, ttl=120)
-    return result  # type: ignore[return-value]
+    return result 
 
 
 async def fetch_org_repos(
@@ -207,7 +200,7 @@ async def fetch_org_repos(
     cache_key = f"org_repos:{org}:{page}:{per_page}"
     cached = cache.get(cache_key)
     if cached:
-        return cached  # type: ignore[return-value]
+        return cached  
 
     action = f"fetch repos for organisation '{org}'"
     logger.info(f"Fetching org repos — {action} (page {page})")
@@ -225,10 +218,9 @@ async def fetch_org_repos(
 
     result = _handle_response(response, action)
     cache.set(cache_key, result, ttl=120)
-    return result  # type: ignore[return-value]
+    return result  
 
 
-# ── Issues ────────────────────────────────────────────────────────────────────
 
 async def fetch_issues(
     token: str,
@@ -305,7 +297,6 @@ async def create_issue(
     return result
 
 
-# ── Commits ───────────────────────────────────────────────────────────────────
 
 async def fetch_commits(
     token: str,
@@ -318,8 +309,7 @@ async def fetch_commits(
     cache_key = f"commits:{owner}/{repo}:{branch or 'default'}:{page}:{per_page}"
     cached = cache.get(cache_key)
     if cached:
-        return cached  # type: ignore[return-value]
-
+        return cached 
     params: dict[str, Any] = {"page": page, "per_page": min(per_page, 100)}
     if branch:
         params["sha"] = branch
@@ -340,10 +330,10 @@ async def fetch_commits(
 
     result = _handle_response(response, action)
     cache.set(cache_key, result, ttl=120)
-    return result  # type: ignore[return-value]
+    return result 
 
 
-# ── Pull Requests ─────────────────────────────────────────────────────────────
+
 
 async def fetch_pull_requests(
     token: str,
@@ -374,7 +364,7 @@ async def fetch_pull_requests(
 
     result = _handle_response(response, action)
     cache.set(cache_key, result, ttl=60)
-    return result  # type: ignore[return-value]
+    return result  
 
 
 async def create_pull_request(
